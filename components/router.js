@@ -3,23 +3,47 @@ import {
     Navigator,
     View,
     Text,
-    StyleSheet
+    StyleSheet,
+    BackAndroid
 } from 'react-native';
 
 import { LoginPage, HeaderLogo } from './loginLayout';
 import { Quests } from './quests';
 import { AssOverview } from './assOverview';
+import { DoAssAnswer } from './assDoAnswer'
 
 const routes = [
-    {title: 'First Scene', index: 0},
-    {title: 'Second Scene', index: 1},
+    {name: 'CheckLogin', index: 0},
+//    {name: 'Quests', index: 1},
+//    {name: 'AssOverview', index: 2},
+//    {name: 'DoAnswer', index:3},
 ];
 
 
 export class DefRouter extends Component{
 
+    constructor() {
+      super();
+    //   this.state = {
+    //     //navigator : null
+    //   };
+    }
+
+
+    componentWillMount(){
+        navigator : null;// = this.navigator;
+        BackAndroid.addEventListener('hardwareBackPress', () => {
+            if (navigator && navigator.getCurrentRoutes().length > 1) {
+                navigator.pop();
+                return true;
+            }
+            return false;
+        });
+    }
+
     renderScene(route, navigator){
-        console.log(route.name)
+        this.navigator = navigator
+        console.log('Going to : ', route.name)
         if(route.name=='CheckLogin'){
             return <LoginPage navigator={navigator}/>
         }
@@ -28,6 +52,9 @@ export class DefRouter extends Component{
         }
         else if(route.name=='AssOverview'){
             return <AssOverview navigator={navigator}/>
+        }
+        else if(route.name=='DoAnswerFS'){
+            return <DoAssAnswer {...route} navigator={navigator}/>
         }
         // else {
         //     return <Quests navigator={navigator}/>
@@ -39,8 +66,10 @@ export class DefRouter extends Component{
             <View style={styles.container}>
                 <HeaderLogo style={styles.headerLogo} title="Welcome" />
                 <Navigator
+                    ref={(nav) => { navigator = nav; }}
                     style={styles.nav}
-                    initialRoute={{ name: 'CheckLogin' }}
+                    initialRoute={routes[0]}
+                    initialRouteStack={routes}
                     renderScene={this.renderScene.bind(this)}
                     />
             </View>

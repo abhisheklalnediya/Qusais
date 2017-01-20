@@ -10,12 +10,14 @@ import {
     View,
 } from 'react-native';
 
+import Assessment from "../stores/QstnrStore";
+
 //import {HeaderLogo} from './loginLayout'
 
 const styles = StyleSheet.create({
     qBox: {
         //width: 100,
-        height: 100,
+        //height: 100,
         borderWidth: 1,
         borderColor: '#234243',
         borderStyle: 'solid',
@@ -41,50 +43,20 @@ const styles = StyleSheet.create({
     questList:{
     }
 });
-const Questions = [
-    {
-        'q' : "How do you feel?",
-        'o' :[
-            {
-                'title':'Ok'
-            },
-            {
-                'title':'Not Ok'
-            },
-        ]
-    },
-    {
-        'q' : "Is your wife Ok??",
-        'o' :[
-            {
-                'title':'Ok'
-            },
-            {
-                'title':'Not Ok'
-            },
-            {
-                'title':'Horney'
-            }
-        ]
-    },
-]
+
 
 class AssQuestion extends Component{
     constructor(props) {
         super(props);
-        console.log(this.props)
         this.state = {
             question: this.props.question
         };
     }
     onPressLearnMore(){
-        console.log('Brrr')
-        return false
+
     }
     renderButtons(){
-        console.log(this.props.question)
         return (this.props.question.o.map((o,i) => {
-            console.log(o)
             return(
 
                 <TouchableHighlight
@@ -92,18 +64,23 @@ class AssQuestion extends Component{
                     onPress={this.onPressLearnMore}
                     style={styles.qBtn}
                     accessibilityLabel="Learn more about this purple button"
-                >
+                    >
                     <Text>{o.title}</Text>
                 </TouchableHighlight>
-                )
-            })
-        )
+            )
+        }))
+    }
+    goFullScreen(){
+        this.props.navigator.push({
+            name : 'DoAnswerFS',
+            qUuid : this.props.question.uuid
+        })
     }
     render(){
         return(
             <View style={styles.qBox}>
-                <View style={styles.qTitleBox}>
-                    <Text style={styles.qTitle}>{this.props.question.q}</Text>
+                <View  style={styles.qTitleBox} >
+                    <Text onPress={this.goFullScreen.bind(this)} style={styles.qTitle}>{this.props.question.q}</Text>
                 </View>
                 <View style={styles.qBtnGrp}>
                     {this.renderButtons()}
@@ -116,19 +93,29 @@ class AssQuestion extends Component{
 
 
 export class AssOverview extends Component {
+    navigate(d){
+      this.props.navigator.push({
+        name:d
+      })
+    }
     renderAssQuestions(){
-        return (Questions.map((q,i) => {
-            return <AssQuestion key={i} question={q} />
-        })
-    )
-}
-render(){
-    return(
-        <View>
-            <ScrollView style={styles.questList}>
-                {this.renderAssQuestions()}
-            </ScrollView>
-        </View>
-    )
-}
+        //console.log(this.props)
+        return (
+            Assessment.getAll().map((q,i) => {
+                return (
+                    <AssQuestion key={i} navigator={this.props.navigator} question={q} />
+                )
+            })
+        )
+    }
+    render(){
+    this.props.navigator.getCurrentRoutes()
+        return(
+            <View>
+                <ScrollView style={styles.questList}>
+                    {this.renderAssQuestions()}
+                </ScrollView>
+            </View>
+        )
+    }
 }

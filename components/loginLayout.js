@@ -35,7 +35,7 @@ export class LoginPage extends Component {
   loginSuccess(){
     this.setState( {
       "inProgress" : false,
-      "status" : ""
+      "status" : "Welcome"
     })
     this.navigate('AssOverview')
   }
