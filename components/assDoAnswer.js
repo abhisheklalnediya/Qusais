@@ -4,9 +4,9 @@ import {
     Button,
     Image,
     StyleSheet,
+    ScrollView,
     Text,
     TouchableHighlight,
-    ScrollView,
     View,
 } from 'react-native';
 
@@ -30,9 +30,9 @@ export class DoAssAnswer extends Component {
         this.setState({question : Qstnr.getNextQuestion(this.state.question.uuid)})
     }
     renderButtons(){
+
         return (this.state.question.o.map((o,i) => {
             return(
-
                 <TouchableHighlight
                     key={i}
                     onPress={this.doOptionAnswer.bind(this, {o : o})}
@@ -44,16 +44,20 @@ export class DoAssAnswer extends Component {
         }))
     }
     render(){
-        return(
-            <View style={styles.qBox}>
-                <View  style={styles.qTitleBox} >
-                    <Text style={styles.qTitle}>{this.state.question.q}</Text>
+        if(this.state.question){
+            return(
+                <View style={styles.qBox}>
+                    <View  style={styles.qTitleBox} >
+                        <Text style={styles.qTitle}>asd</Text>
+                    </View>
+                    <View style={styles.qBtnGrp}>
+                        {this.renderButtons()}
+                    </View>
                 </View>
-                <View style={styles.qBtnGrp}>
-                    {this.renderButtons()}
-                </View>
-            </View>
-        )
+            )
+        }else{
+            return(<Text>Finish</Text>)
+        }
     }
 }
 
