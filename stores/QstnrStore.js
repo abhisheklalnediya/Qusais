@@ -1,54 +1,67 @@
 import { EventEmitter } from "events";
 
-//import dispatcher from "../dispatcher";
+import dispatcher from "../dispatcher/dispatcher";
 
-
-
-
-var Questions = [
-    {
-        'uuid': "121",
-        'order' : 1,
-        'q' : "How do you feel?",
-        'o' :[
-            {
-                'title':'Ok',
-                'uuid' : 4
-            },
-            {
-                'title':'Not Ok',
-                'uuid' : 5
-            },
-        ]
-    },
-    {
-        'uuid': "123",
-        'order' : 2,
-        'q' : "Is your wife Ok??",
-        'o' :[
-            {
-                'title':'Ok',
-                'uuid' : 1
-            },
-            {
-                'title':'Not Ok',
-                'uuid' : 2
-            },
-            {
-                'title':'Horney',
-                'uuid' : 3
-            }
-        ]
-    },
-]
+import Session from "./SessionStore";
 
 
 class Assessment extends EventEmitter {
     constructor() {
         super()
-        this.questions = Questions
+        this.assKey = null
+        this.assessment = null
     }
+    fetchAss(id){
+        (async () => {
+            try {
+                const url = Session.API_ROOT + '/patient/assessments/' + id + '/'
+                console.log(url)
+                let response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        ...Session.furtherHeaders
+                    },
+                    //body : this.getUrlEncoded()
+                });
 
+                let responseJson = await response.json();
+                console.log(responseJson)
+                this.assessment = responseJson
+                this.emit("CHANGE")
+                return true
+            } catch(error) {
+                error = await console.log('error', error)
+                this.emit("CHANGE")
+                return false
+            }
+        })()
+    }
+    fetch(id){
+        (async () => {
+            try {
+                this.assKey = id
+                console.log(Session.API_ROOT + '/patient/get/cankado/assessment/access/' + id + '/')
+                let response = await fetch(Session.API_ROOT + '/patient/get/cankado/assessment/access/' + id + '/', {
+                    method: 'GET',
+                    headers: {
+                        ...Session.furtherHeaders
+                    },
+                    //body : this.getUrlEncoded()
+                });
+
+                let responseJson = await response.json();
+                //Object.assign(this.session, responseJson)
+                console.log(responseJson, "asdasdasdas")
+                //this.emit("CHANGE")
+                this.fetchAss(responseJson.uuid)
+                return true
+            } catch(error) {
+                error = await console.log('error', error)
+                this.emit("CHANGE")
+                return false
+            }
+        })()
+    }
     createTodo(text) {
         const id = Date.now();
 
@@ -61,8 +74,22 @@ class Assessment extends EventEmitter {
         this.emit("change");
     }
 
-    getAll() {
-        return this.questions;
+    getAssment() {
+        return this.assessment;
+    }
+    getAllQuestions() {
+        var questions = []
+        this.assessment.questionnaires.map((qstnr,i)=>{
+            qstnr.sections.map((sec)=>{
+                sec.questions.map((quest)=>{
+                    quest.order_qstnr = i
+                    quest.order_sec = sec.order
+                    questions.push(quest)
+                })
+            })
+        })
+        console.log(questions)
+        return questions
     }
     getByUUID(uuid) {
         var q = this.questions.find(x =>x.uuid===uuid)

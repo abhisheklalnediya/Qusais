@@ -9,6 +9,7 @@ import {
     TouchableHighlight
 } from 'react-native';
 
+import Session from  "../stores/SessionStore";
 
 
 export class LoginPage extends Component {
@@ -16,51 +17,33 @@ export class LoginPage extends Component {
         super();
         this.state = {
             inProgress: true,
-            status : "Logging in .."
+            status : "Logging in..."
         };
     }
-
     navigate(d){
         this.props.navigator.push({
             name:d
         })
-    }
-
-    CheckLogin(){
-        var self = this;
-        // setTimeout(() => {
-        //   self.loginSuccess()
-        // },2000)
-        async function getMoviesFromApi() {
-            try {
-                let response = await fetch('http://127.0.0.1:8000/can/token',{
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            firstParam: 'yourValue',
-                            secondParam: 'yourOtherValue',
-                        })
-                    });
-                let responseJson = await response.json();
-                return responseJson.movies;
-            } catch(error) {
-                console.error(error);
-            }
-        }
-        getMoviesFromApi()
     }
     loginSuccess(){
         this.setState( {
             "inProgress" : false,
             "status" : "Welcome"
         })
-        this.navigate('AssOverview')
+        this.navigate('AssIndex')
+    }
+    componentWillMount(){
+        Session.on('CHANGE', ()=>{
+            if(Session.getToken()){
+                this.loginSuccess()
+                console.log({
+                    // ...Session.furtherHeaders
+                })
+            }
+        })
     }
     componentDidMount() {
-        this.CheckLogin()
+        Session.checkLogin()
     }
 
     render() {

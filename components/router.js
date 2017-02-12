@@ -9,7 +9,8 @@ import {
 
 import { LoginPage, HeaderLogo } from './loginLayout';
 import { Quests } from './quests';
-import { AssOverview } from './assOverview';
+//import { AssOverview } from './assOverview';
+import { AssIndex } from './assOverview';
 import { DoAssAnswer } from './assDoAnswer'
 
 const routes = [
@@ -43,15 +44,18 @@ export class DefRouter extends Component{
 
     renderScene(route, navigator){
         this.navigator = navigator
-        console.log('Going to : ', route.name)
+        console.log('Going to n1: ', route.name)
         if(route.name=='CheckLogin'){
             return <LoginPage navigator={navigator}/>
         }
         else if(route.name=='Quests'){
             return <Quests navigator={navigator}/>
         }
-        else if(route.name=='AssOverview'){
-            return <AssOverview navigator={navigator}/>
+        else if(route.name=='AssIndex'){
+            return <AssIndex navigator={navigator}/>
+        }
+        else if(route.name=='FetchAssOverview'){
+            return <FetchAssOverview navigator={navigator}/>
         }
         else if(route.name=='DoAnswerFS'){
             return <DoAssAnswer {...route} navigator={navigator}/>
