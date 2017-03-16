@@ -9,47 +9,98 @@ import {
     TouchableHighlight,
     ScrollView,
     View,
-} from 'react-native';
+} from 'native-base';
 
+import Utils from "../Utils"
+import dispatcher from "../dispatcher/dispatcher";
 import Assessment from "../stores/QstnrStore";
 
 //import {HeaderLogo} from './loginLayout'
 
-const styles = StyleSheet.create({
-    qBox: {
-        //width: 100,
-        //height: 100,
-        borderWidth: 1,
-        borderColor: '#234243',
-        borderStyle: 'solid',
-        marginBottom : 10
-    },
-    qBtnGrp:{
-        //flexDirection: 'row',
-        justifyContent: 'space-between'
-    },
-    qTitleBox:{
-        padding:3
-    },
-    qTitle:{
-        fontWeight : 'bold'
-    },
-    qBtn:{
-        //flex: 1,
-        marginBottom : 5,
-        borderWidth:1,
-        borderColor:'#ddd',
-        padding : 5
-    },
-    questList:{
-    }
-});
+// const styles = StyleSheet.create({
+//     qBox: {
+//         //width: 100,
+//         //height: 100,
+//         borderWidth: 1,
+//         borderColor: '#234243',
+//         borderStyle: 'solid',
+//         marginBottom : 10
+//     },
+//     qBtnGrp:{
+//         //flexDirection: 'row',
+//         justifyContent: 'space-between'
+//     },
+//     qTitleBox:{
+//         padding:3
+//     },
+//     qTitle:{
+//         fontWeight : 'bold'
+//     },
+//     qBtn:{
+//         //flex: 1,
+//         marginBottom : 5,
+//         borderWidth:1,
+//         borderColor:'#ddd',
+//         padding : 5
+//     },
+//     questList:{
+//     }
+// });
 
 const routes = [
     {name: 'AssOverviewH', index: 0},
 
 
 ];
+
+class AssAnswerFs extends Component {
+    constructor(props) {
+
+        super(props);
+        //console.log(this.props.qUuid)
+        this.state = {
+            question: Assessment.getByUUID(this.props.qUuid)
+        };
+    }
+    doOptionAnswer(p){
+        console.log(p)
+        this.setState({
+            documented : true,
+            valude : 1
+        })
+        this.setState({question : Assessment.getNextQuestion(this.state.question.uuid)})
+    }
+    renderButtons(){
+
+        return (this.state.question.o.map((o,i) => {
+            return(
+                <TouchableHighlight
+                    key={i}
+                    onPress={this.doOptionAnswer.bind(this, {o : o})}
+                    style={styles.qBtn}
+                    >
+                    <Text>{o.title}</Text>
+                </TouchableHighlight>
+            )
+        }))
+    }
+    render(){
+        if(this.state.question){
+            return(
+                <View style={styles.qBox}>
+                    <View  style={styles.qTitleBox} >
+                        <Text style={styles.qTitle}>asd</Text>
+                    </View>
+                    <View style={styles.qBtnGrp}>
+                        {this.renderButtons()}
+                    </View>
+                </View>
+            )
+        }else{
+            return(<Text>Finish</Text>)
+        }
+    }
+}
 
 
 class AssQuestion extends Component{
@@ -69,14 +120,14 @@ class AssQuestion extends Component{
     renderButtons(){
         return (this.state.question.options.map((o,i) => {
             return(
-                <TouchableHighlight
+                <button
                     key={i}
                     onPress={this.onPressLearnMore}
                     style={styles.qBtn}
                     accessibilityLabel="{o.title}"
                     >
                     <Text>{o.title}</Text>
-                </TouchableHighlight>
+                </button>
             )
         }))
     }
@@ -152,6 +203,17 @@ class AssOverview extends Component {
     onPressAnswer(e){
         this.navigate('AssQstnrOverview')
     }
+    styles = StyleSheet.create({
+        qInfoRow : {
+            flexDirection:'row',
+            justifyContent: 'space-between',
+            //alignItems: 'flex-end',
+            backgroundColor: '#F5FCFF',
+        },
+        qInfoRowItem : {
+            flex : 1
+        }
+    })
     renderAssQstnr(){
         var assessment = this.state.assessment
         function showQuestionnares(){
@@ -165,9 +227,10 @@ class AssOverview extends Component {
         }
         return (
             <View>
-                <Text>{assessment.accessKey.accesskey}</Text>
-                <Text>{assessment.status}</Text>
-                {showQuestionnares()}
+                <View style={this.styles.qInfoRow}>
+                    <Text style={this.styles.qInfoRowItem}>{assessment.accessKey.accesskey}</Text>
+                    <Text style={this.styles.qInfoRowItem}>{Utils.assStatus(assessment).status}</Text>
+                </View>
                 <TouchableHighlight
                     onPress={this.onPressAnswer.bind(this)}
                     style={styles.qBtn}
@@ -175,6 +238,7 @@ class AssOverview extends Component {
                     >
                     <Text>Answer</Text>
                 </TouchableHighlight>
+                {showQuestionnares()}
             </View>
         )
     }
@@ -191,15 +255,11 @@ class AssOverview extends Component {
 export class AssIndex extends Component {
     constructor(props) {
         super(props);
+        console.log(this.props)
         this.state = {
             status : "Fetching Assessment Details.",
             inProgress : true
         };
-    }
-    navigate(d){
-        this.props.navigator.push({
-            name:d
-        })
     }
     componentWillMount (){
     }
@@ -214,12 +274,18 @@ export class AssIndex extends Component {
         })
     }
     navigate(d){
-        this.navigator.push({
+        this.assNavigator.push({
             name:d
         })
     }
-    renderAssScene(route, navigator){
-        this.navigator = navigator
+    renderAssScene(route, assNavigator){
+        if(!this.assNavigator && assNavigator){
+            dispatcher.dispatch({
+                action_type : "NAVIGATION",
+                navigator : assNavigator
+            })
+            this.assNavigator = assNavigator
+        }
         switch (route.name){
             case 'AssOverviewH':
                 return(
@@ -231,22 +297,26 @@ export class AssIndex extends Component {
                                 />
                             <Text>{this.state.status}</Text>
                         </ScrollView>
-                    </View>
+                    </View> 
                 )
             case "AssOverview":
                 return (
-                    <AssOverview navigator={navigator} />
+                    <AssOverview navigator={assNavigator} />
                 )
             case "AssQstnrOverview":
                 return (
-                    <AssQstnrOverview navigator={navigator} />
+                    <AssQstnrOverview navigator={assNavigator} />
+                )
+            case "DoAnswerFS":
+                return (
+                    <AssAnswerFs {...routeOptions} navigator={assNavigator} />
                 )
         }
     }
     render(){
         return(
             <Navigator
-                ref={(nav) => { navigator = nav; }}
+                ref={(nav) => { assNavigator = nav; }}
                 initialRoute={routes[0]}
                 initialRouteStack={routes}
                 renderScene={this.renderAssScene.bind(this)}
@@ -255,97 +325,3 @@ export class AssIndex extends Component {
 
     }
 }
-//
-// export class FetchAssOverview extends Component {
-//     constructor(props) {
-//         console.log('here')
-//         super(props);
-//         this.state = {
-//             inProgress: true,
-//             status : "Fetching Assessment Details."
-//         };
-//     }
-//     navigate(d){
-//       this.props.navigator.push({
-//         name:d
-//       })
-//     }
-//     componentDidMount (){
-//         console.log('mounting')
-//         Assessment.fetch('77457')
-//         Assessment.on('CHANGE', ()=>{
-//             console.log('Ass Changed')
-//             this.setState({
-//                 inProgress : false,
-//                 status : "Be ready for Assessment"
-//             })
-//         })
-//     }
-//
-//     render(){
-//         return(
-//             <View>
-//                 <ScrollView style={styles.questList}>
-//                     <Text>{this.state.status}</Text>
-//                 </ScrollView>
-//             </View>
-//         )
-//     }
-// }
-//
-// export class AssOverview extends Component {
-//     constructor(props) {
-//         console.log('here')
-//         super(props);
-//         this.state = {
-//             inProgress: true,
-//             status : "Logging in..."
-//         };
-//     }
-//     navigate(d){
-//       this.props.navigator.push({
-//         name:d
-//       })
-//     }
-//     componentWillMount (){
-//         // Assessment.fetch('77457')
-//         // Assessment.on('CHANGE', ()=>{
-//         //     console.log('Ass Changed')
-//         //     this.setState({
-//         //         inProgress : false
-//         //     })
-//         //     // this.navigate('AssOverview')
-//         // })
-//     }
-//     renderAssQuestions(){
-//         console.log(this.state)
-//         if(this.state.inProgress)
-//         {
-//             return (
-//                 <ActivityIndicator
-//                     animating={true}
-//                     size="large"
-//                     />
-//             )
-//         }
-//         else {
-//             return (
-//                 Assessment.getAll().map((q,i) => {
-//                     return (
-//                         <AssQuestion key={i} navigator={this.props.navigator} question={q} />
-//                     )
-//                 })
-//             )
-//         }
-//
-//     }
-//     render(){
-//         return(
-//             <View>
-//                 <ScrollView style={styles.questList}>
-//                     {this.renderAssQuestions()}
-//                 </ScrollView>
-//             </View>
-//         )
-//     }
-// }

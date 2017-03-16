@@ -1,7 +1,7 @@
 import { EventEmitter } from "events";
 
 class Session extends EventEmitter {
-    API_ROOT = 'http://ha.cankado.info'
+    API_ROOT = 'https://1212api.kraftvoll.in'
     //API_ROOT = 'http://10.0.2.2:8000'
     constructor() {
         super()
@@ -40,6 +40,7 @@ class Session extends EventEmitter {
                 });
 
                 let responseJson = await response.json();
+                console.log(responseJson)
                 if(response.status == 200)
                 {
                     Object.assign(this.session, responseJson)
@@ -49,6 +50,7 @@ class Session extends EventEmitter {
                 }
                 this.emit("CHANGE")
             } catch(error) {
+                console.log("Errorrr", error)
                 this.emit("CHANGE")
             }
         })()

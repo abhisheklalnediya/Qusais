@@ -7,6 +7,8 @@ import {
     BackAndroid
 } from 'react-native';
 
+import dispatcher from "../dispatcher/dispatcher";
+
 import { LoginPage, HeaderLogo } from './loginLayout';
 import { Quests } from './quests';
 //import { AssOverview } from './assOverview';
@@ -25,14 +27,9 @@ export class DefRouter extends Component{
 
     constructor() {
       super();
-    //   this.state = {
-    //     //navigator : null
-    //   };
     }
-
-
     componentWillMount(){
-        navigator : null;// = this.navigator;
+        navigator : null;
         BackAndroid.addEventListener('hardwareBackPress', () => {
             if (navigator && navigator.getCurrentRoutes().length > 1) {
                 navigator.pop();
@@ -41,24 +38,29 @@ export class DefRouter extends Component{
             return false;
         });
     }
-
-    renderScene(route, navigator){
-        this.navigator = navigator
-        console.log('Going to n1: ', route.name)
-        if(route.name=='CheckLogin'){
+    renderScene(routeOptions, navigator){
+        if(!this.navigator && navigator){
+            dispatcher.dispatch({
+                action_type : "NAVIGATION",
+                navigator : navigator
+            })
+            this.navigator = navigator
+        }
+        console.log('Going to n1: ', routeOptions.name)
+        if(routeOptions.name=='CheckLogin'){
             return <LoginPage navigator={navigator}/>
         }
-        else if(route.name=='Quests'){
+        else if(routeOptions.name=='Quests'){
             return <Quests navigator={navigator}/>
         }
-        else if(route.name=='AssIndex'){
+        else if(routeOptions.name=='AssIndex'){
             return <AssIndex navigator={navigator}/>
         }
-        else if(route.name=='FetchAssOverview'){
+        else if(routeOptions.name=='FetchAssOverview'){
             return <FetchAssOverview navigator={navigator}/>
         }
-        else if(route.name=='DoAnswerFS'){
-            return <DoAssAnswer {...route} navigator={navigator}/>
+        else if(routeOptions.name=='DoAnswerFS'){
+            return <DoAssAnswer {...routeOptions} navigator={navigator}/>
         }
         // else {
         //     return <Quests navigator={navigator}/>
@@ -68,7 +70,7 @@ export class DefRouter extends Component{
     render() {
         return (
             <View style={styles.container}>
-                <HeaderLogo style={styles.headerLogo} title="Welcome" />
+                <HeaderLogo navigator={this.navigator} style={styles.headerLogo} title="Welcome" />
                 <Navigator
                     ref={(nav) => { navigator = nav; }}
                     style={styles.nav}

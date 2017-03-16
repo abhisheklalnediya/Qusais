@@ -9,6 +9,7 @@ import {
     TouchableHighlight
 } from 'react-native';
 
+import dispatcher from "../dispatcher/dispatcher";
 import Session from  "../stores/SessionStore";
 
 
@@ -36,9 +37,6 @@ export class LoginPage extends Component {
         Session.on('CHANGE', ()=>{
             if(Session.getToken()){
                 this.loginSuccess()
-                console.log({
-                    // ...Session.furtherHeaders
-                })
             }
         })
     }
@@ -63,9 +61,24 @@ export class LoginPage extends Component {
 export class HeaderLogo extends Component{
     constructor(props){
         super(props)
+        //console.log(this.props)
+    }
+    componentWillMount(){
+        //console.log("registering")
+        dispatcher.register((payload)=>{
+            //console.log(this)
+            if (payload.action_type = "NAVIGATION"){
+                this.navigator = payload.navigator
+            }
+            //console.log(this.navigator)
+        });
     }
     onPressButton(){
-        console.log('halle')
+        //console.log('halle', this.navigator)
+        if (this.navigator && this.navigator.getCurrentRoutes().length > 1) {
+                this.navigator.pop();
+                return true;
+            }
     }
     render() {
         return (
@@ -75,7 +88,7 @@ export class HeaderLogo extends Component{
                     resizeMode={Image.resizeMode.contain}
                     source={require('../images/logo-header.png')}
                     />
-                <TouchableHighlight onPress={this.onPressButton} style={styles.button} underlayColor="white">
+                <TouchableHighlight onPress={this.onPressButton.bind(this)} style={styles.button} underlayColor="white">
                     <Text > &#9776;</Text>
                 </TouchableHighlight>
 

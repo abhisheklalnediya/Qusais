@@ -25,8 +25,8 @@ class Assessment extends EventEmitter {
                 });
 
                 let responseJson = await response.json();
-                console.log(responseJson)
                 this.assessment = responseJson
+                this.populateQuestions()
                 this.emit("CHANGE")
                 return true
             } catch(error) {
@@ -50,9 +50,6 @@ class Assessment extends EventEmitter {
                 });
 
                 let responseJson = await response.json();
-                //Object.assign(this.session, responseJson)
-                console.log(responseJson, "asdasdasdas")
-                //this.emit("CHANGE")
                 this.fetchAss(responseJson.uuid)
                 return true
             } catch(error) {
@@ -73,11 +70,7 @@ class Assessment extends EventEmitter {
 
         this.emit("change");
     }
-
-    getAssment() {
-        return this.assessment;
-    }
-    getAllQuestions() {
+    populateQuestions(){
         var questions = []
         this.assessment.questionnaires.map((qstnr,i)=>{
             qstnr.sections.map((sec)=>{
@@ -88,12 +81,16 @@ class Assessment extends EventEmitter {
                 })
             })
         })
-        console.log(questions)
-        return questions
+        this.questions = questions
+    }
+    getAssment() {
+        return this.assessment;
+    }
+    getAllQuestions() {
+        return this.questions
     }
     getByUUID(uuid) {
         var q = this.questions.find(x =>x.uuid===uuid)
-        console.log(q)
         return q
     }
     getNextQuestion(uuid){
@@ -118,6 +115,6 @@ class Assessment extends EventEmitter {
 }
 
 const assessment = new Assessment;
-//dispatcher.register(assessment.handleActions.bind(assessment));
+dispatcher.register(assessment.handleActions.bind(assessment));
 
 export default assessment;
