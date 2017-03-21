@@ -9,6 +9,17 @@ import {
     TouchableHighlight,
     ScrollView,
     View,
+} from 'react-native';
+
+import { 
+    Container, 
+    Content, 
+    Body, 
+    ListItem, 
+    CheckBox,
+    Right,
+    Radio,
+
 } from 'native-base';
 
 import Utils from "../Utils"
@@ -17,40 +28,38 @@ import Assessment from "../stores/QstnrStore";
 
 //import {HeaderLogo} from './loginLayout'
 
-// const styles = StyleSheet.create({
-//     qBox: {
-//         //width: 100,
-//         //height: 100,
-//         borderWidth: 1,
-//         borderColor: '#234243',
-//         borderStyle: 'solid',
-//         marginBottom : 10
-//     },
-//     qBtnGrp:{
-//         //flexDirection: 'row',
-//         justifyContent: 'space-between'
-//     },
-//     qTitleBox:{
-//         padding:3
-//     },
-//     qTitle:{
-//         fontWeight : 'bold'
-//     },
-//     qBtn:{
-//         //flex: 1,
-//         marginBottom : 5,
-//         borderWidth:1,
-//         borderColor:'#ddd',
-//         padding : 5
-//     },
-//     questList:{
-//     }
-// });
+const styles = StyleSheet.create({
+    qBox: {
+        //width: 100,
+        //height: 100,
+        borderWidth: 1,
+        borderColor: '#234243',
+        borderStyle: 'solid',
+        marginBottom : 10
+    },
+    qBtnGrp:{
+        //flexDirection: 'row',
+        justifyContent: 'space-between'
+    },
+    qTitleBox:{
+        padding:3
+    },
+    qTitle:{
+        fontWeight : 'bold'
+    },
+    qBtn:{
+        //flex: 1,
+        marginBottom : 5,
+        borderWidth:1,
+        borderColor:'#ddd',
+        padding : 5
+    },
+    questList:{
+    }
+});
 
 const routes = [
     {name: 'AssOverviewH', index: 0},
-
-
 ];
 
 class AssAnswerFs extends Component {
@@ -59,7 +68,8 @@ class AssAnswerFs extends Component {
         super(props);
         //console.log(this.props.qUuid)
         this.state = {
-            question: Assessment.getByUUID(this.props.qUuid)
+            question: Assessment.getByUUID(this.props.qUuid),
+            answerOptions : []
         };
     }
     doOptionAnswer(p){
@@ -70,34 +80,46 @@ class AssAnswerFs extends Component {
         })
         this.setState({question : Assessment.getNextQuestion(this.state.question.uuid)})
     }
-    renderButtons(){
-
-        return (this.state.question.o.map((o,i) => {
-            return(
-                <TouchableHighlight
-                    key={i}
-                    onPress={this.doOptionAnswer.bind(this, {o : o})}
-                    style={styles.qBtn}
-                    >
-                    <Text>{o.title}</Text>
-                </TouchableHighlight>
-            )
-        }))
+    radioClick(t){
+        this.setState({answerOptions : [t]})
+        return false
+    }
+    renderAnsSection(){
+        if(this.state.question.ansType == 'o'){
+            return (this.state.question.options.map((o,i) => {
+                return(
+                    <ListItem onPress={this.radioClick.bind(this, o.uuid)} key={i} selected={ this.state.answerOptions.includes(o.uuid) }>
+                        <Text>{o.title}</Text>
+                        <Right>
+                            <Radio selected={this.state.answerOptions.includes(o.uuid) } />
+                        </Right>
+                    </ListItem>
+                )
+            }))
+        }
+        
     }
     render(){
         if(this.state.question){
             return(
                 <View style={styles.qBox}>
                     <View  style={styles.qTitleBox} >
-                        <Text style={styles.qTitle}>asd</Text>
+                        <Text style={styles.qTitle}>{this.state.question.title}</Text>
                     </View>
-                    <View style={styles.qBtnGrp}>
-                        {this.renderButtons()}
+                    <View >
+                        {this.renderAnsSection()}
                     </View>
                 </View>
             )
         }else{
-            return(<Text>Finish</Text>)
+            return(
+                <ListItem>
+                        <CheckBox checked={true} />
+                        <Body>
+                            <Text>Daily Stand Up</Text>
+                        </Body>
+                    </ListItem>
+                )
         }
     }
 }
@@ -114,22 +136,34 @@ class AssQuestion extends Component{
     componentWillMount (){
         // Assessment.fetch('77457')
     }
-    onPressLearnMore(){
-
+    radioClick(answer){
+        dispatcher.dispatch({
+            type : "DOCUMENT_QUESTION",
+            option : answer,
+            question : this.state.question.uuid,
+            questionnaire : this.state.question.questionnaire.uuid
+        })
     }
-    renderButtons(){
-        return (this.state.question.options.map((o,i) => {
-            return(
-                <button
-                    key={i}
-                    onPress={this.onPressLearnMore}
-                    style={styles.qBtn}
-                    accessibilityLabel="{o.title}"
-                    >
-                    <Text>{o.title}</Text>
-                </button>
-            )
-        }))
+    renderAnsSec(){
+        if(this.state.question.ansType == 'o'){
+            return (this.state.question.options.map((o,i) => {
+                return(
+                    <ListItem onPress={this.radioClick.bind(this, o.uuid)} key={i} selected={ o.uuid == this.state.question.answer }>
+                            <Text>{o.title}</Text>
+                            <Right>
+                                <Radio selected={ o.uuid == this.state.question.answer } />
+                            </Right>
+                    </ListItem>
+                )
+            }))
+        }
+        else if(this.state.question.ansType == 'm'){
+           
+        }
+        else if(this.state.question.ansType == 't'){
+            
+        }
+        
     }
     goFullScreen(){
         this.props.navigator.push({
@@ -138,14 +172,13 @@ class AssQuestion extends Component{
         })
     }
     render(){
-        console.log(this.state)
         return(
             <View style={styles.qBox}>
                 <View  style={styles.qTitleBox} >
                     <Text onPress={this.goFullScreen.bind(this)} style={styles.qTitle}>{this.state.question.title}</Text>
                 </View>
                 <View style={styles.qBtnGrp}>
-                {this.renderButtons()}
+                {this.renderAnsSec()}
                 </View>
             </View>
         )
@@ -264,7 +297,7 @@ export class AssIndex extends Component {
     componentWillMount (){
     }
     componentDidMount (){
-        Assessment.fetch('77457')
+        Assessment.fetch('679c3')
         Assessment.on('CHANGE', ()=>{
             this.setState({
                 inProgress : false,
@@ -278,7 +311,7 @@ export class AssIndex extends Component {
             name:d
         })
     }
-    renderAssScene(route, assNavigator){
+    renderAssScene(routeOptions, assNavigator){
         if(!this.assNavigator && assNavigator){
             dispatcher.dispatch({
                 action_type : "NAVIGATION",
@@ -286,7 +319,7 @@ export class AssIndex extends Component {
             })
             this.assNavigator = assNavigator
         }
-        switch (route.name){
+        switch (routeOptions.name){
             case 'AssOverviewH':
                 return(
                     <View>

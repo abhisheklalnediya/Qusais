@@ -1,7 +1,8 @@
 import { EventEmitter } from "events";
 
 class Session extends EventEmitter {
-    API_ROOT = 'https://1212api.kraftvoll.in'
+    API_ROOT = 'https://appapi.kraftvoll.in'
+    // API_ROOT = 'https://1212api.kraftvoll.in'
     //API_ROOT = 'http://10.0.2.2:8000'
     constructor() {
         super()
@@ -45,7 +46,8 @@ class Session extends EventEmitter {
                 {
                     Object.assign(this.session, responseJson)
                     Object.assign(this.furtherHeaders, {
-                        Authorization: this.session.token_type + ' ' +  this.getToken()
+                        'Authorization' : this.session.token_type + ' ' +  this.getToken(),
+                        'content-type' : 'application/json'
                     })
                 }
                 this.emit("CHANGE")
