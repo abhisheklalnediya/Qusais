@@ -68,7 +68,7 @@ class AssAnswerFs extends Component {
         super(props);
         //console.log(this.props.qUuid)
         this.state = {
-            question: Assessment.getByUUID(this.props.qUuid),
+            question: Assessment.getQuestionByUUID(this.props.qUuid),
             answerOptions : []
         };
     }
@@ -136,7 +136,19 @@ class AssQuestion extends Component{
     componentWillMount (){
         // Assessment.fetch('77457')
     }
+    componentDidMount (){
+
+    }
     radioClick(answer){
+        
+        Assessment.on('ASSESSMENT_ANSWER_CHANGE_' + this.state.question.uuid, ()=>{
+            console.log('Setting State')
+            console.log(this.state)
+            this.setState({
+                question : Assessment.getQuestionByUUID(this.props.question.uuid)
+            })
+                      console.log(this.state)
+        })
         dispatcher.dispatch({
             type : "DOCUMENT_QUESTION",
             option : answer,
@@ -163,7 +175,6 @@ class AssQuestion extends Component{
         else if(this.state.question.ansType == 't'){
             
         }
-        
     }
     goFullScreen(){
         this.props.navigator.push({
@@ -298,7 +309,7 @@ export class AssIndex extends Component {
     }
     componentDidMount (){
         Assessment.fetch('679c3')
-        Assessment.on('CHANGE', ()=>{
+        Assessment.on('ASSESSMENT_READY_TO_ANSWER', ()=>{
             this.setState({
                 inProgress : false,
                 status : "Be ready for Assessment"
