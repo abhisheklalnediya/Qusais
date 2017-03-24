@@ -9,6 +9,8 @@ import {
     TouchableHighlight
 } from 'react-native';
 
+import { Button, Container, Content, Form, Item, Input, Icon,Label } from 'native-base';
+
 import dispatcher from "../dispatcher/dispatcher";
 import Session from  "../stores/SessionStore";
 
@@ -18,7 +20,8 @@ export class LoginPage extends Component {
         super();
         this.state = {
             inProgress: true,
-            status : "Logging in..."
+            status : "Logging in...",
+            showLginForm : false
         };
     }
     navigate(d){
@@ -28,25 +31,55 @@ export class LoginPage extends Component {
     }
     loginSuccess(){
         this.setState( {
-            "inProgress" : false,
-            "status" : "Welcome"
+            inProgress : false,
+            status : "Welcome",
+            username : "",
+            password : ""
+            
         })
-        this.navigate('AssIndex')
+        this.navigate('Quests')
     }
     componentWillMount(){
-        Session.on('CHANGE', ()=>{
+        Session.once('LOGIN_SUCCESS', ()=>{
             if(Session.getToken()){
                 this.loginSuccess()
             }
+        })
+        Session.once('LOGIN_ERROR', ()=>{
+            this.setState({
+                inProgress : false,
+                showLginForm : true,
+                status : "Login",
+            })
         })
     }
     componentDidMount() {
         Session.checkLogin()
     }
-
-    render() {
+    login(){
+        console.log(this.state)
+        Session.login({...this.state})
+    }
+    renderLoginForm(){
         return (
-            <View style={styles.login_container}>
+            <Form>
+                <Item fixedLabel>
+                    <Icon  name='person' />
+                    <Input onChangeText={(text) => this.setState({username:text})} placeholder="username" />
+                </Item>
+                <Item fixedLabel last>
+                    <Icon  name='key' />
+                    <Input secureTextEntry={true} onChangeText={(text) => this.setState({password:text})} placeholder="password" />
+                </Item>
+                <Button block>
+                    <Text onPress={this.login.bind(this)} >Login</Text>
+                </Button>
+            </Form>
+        )
+    }
+    renderProgress(){
+        return(
+            <View>
                 <ActivityIndicator
                     animating={this.state.inProgress}
                     style={[styles.centering, {height: 80}]}
@@ -54,7 +87,16 @@ export class LoginPage extends Component {
                     />
                 <Text>{this.state.status}</Text>
             </View>
-        );
+        )
+    }
+    render() {
+        if(this.state.showLginForm){
+            return ( this.renderLoginForm() )
+        }
+        else{
+            return (this.renderProgress())
+        }
+            
     }
 }
 
@@ -99,7 +141,6 @@ export class HeaderLogo extends Component{
 
 const styles = StyleSheet.create({
     header_container: {
-
         flexDirection:'row',
         justifyContent: 'space-between',
         //alignItems: 'flex-end',

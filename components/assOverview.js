@@ -170,9 +170,21 @@ class AssQuestion extends Component{
             }))
         }
         else if(this.state.question.ansType == 'm'){
-           
+           return (this.state.question.options.map((o,i) => {
+                return(
+                    <ListItem onPress={this.radioClick.bind(this, o.uuid)} key={i} selected={ this.state.question.answer.findIndex((x)=>{ return x == o.uuid}) > -1 }>
+                            <Text>{o.title}</Text>
+                            <Right>
+                                <Radio selected={ this.state.question.answer.findIndex((x) => { return x == o.uuid}) > -1  } />
+                            </Right>
+                    </ListItem>
+                )
+            }))
         }
         else if(this.state.question.ansType == 't'){
+            
+        }
+        else if(this.state.question.ansType == 'f'){
             
         }
     }
@@ -186,7 +198,9 @@ class AssQuestion extends Component{
         return(
             <View style={styles.qBox}>
                 <View  style={styles.qTitleBox} >
-                    <Text onPress={this.goFullScreen.bind(this)} style={styles.qTitle}>{this.state.question.title}</Text>
+                    <Text onPress={this.goFullScreen.bind(this)} style={styles.qTitle}>
+                    {this.state.question.order}. {this.state.question.title}
+                    </Text>
                 </View>
                 <View style={styles.qBtnGrp}>
                 {this.renderAnsSec()}

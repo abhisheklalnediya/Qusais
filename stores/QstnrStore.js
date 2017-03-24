@@ -115,6 +115,7 @@ class Assessment extends EventEmitter {
             })
         })
         this.questions = questions
+        console.log(this.questions)
     }
     getAssment() {
         return this.assessment;
@@ -132,7 +133,45 @@ class Assessment extends EventEmitter {
 
         return this.questions[qi+1]
     }
-    doAnswer(data){
+    doAnswer(answer){
+        console.log(answer)
+        var ansIndex = this.assessmentAns.findIndex((x)=>{ return x.question == answer.question })
+        var question = this.getQuestionByUUID(answer.question)
+        console.log(ansIndex, question)
+        var answerTemp = {
+            assessment : this.assessment.uuid,
+            question : answer.question,
+            option : null,
+            mOptions : [],
+            textAns : null,
+            floatAns : ''
+        }
+        if(question.ansType == 'o'){
+            answerTemp.option = answer.option
+        } else if (question.ansType == 'm') {
+            if(ansIndex > -1){
+                answerTemp.mOptions = this.assessmentAns[ansIndex].mOptions
+                optIndex = answerTemp.mOptions.findIndex((x)=>{ return x == answer.option })
+                if(optIndex > -1){
+                    answerTemp.mOptions.splice(optIndex,1)
+                }
+                else{
+                    answerTemp.mOptions.push(answer.option)
+                }
+            }
+            else{
+                answerTemp.mOptions.push(answer.option)
+            }
+        } else if (question.ansType == 't') {
+
+        } else if (question.ansType == 'f') {
+        }
+        this.assessmentAns.splice(ansIndex, (ansIndex == -1) ? 0 : (ansIndex + 1), answerTemp)
+        
+        this.populateQuestions()
+        this.emit("ASSESSMENT_ANSWER_CHANGE_" + question.uuid);
+    }
+    updateAnswer(answer){
         (async () => {
             try {
                 const url = Session.API_ROOT + '/patient/assessments/' + this.assessment.uuid + '/answers/'
@@ -161,11 +200,6 @@ class Assessment extends EventEmitter {
                 return false
             }
         })()
-    }
-    updateAnswer(answer){
-        var rIndex = this.assessmentAns.findIndex((x)=>{ return x.question == answer.question })
-        this.assessmentAns.splice(rIndex, (rIndex == -1) ? 0 : (rIndex + 1), answer)
-        this.populateQuestions()
     }
     handleActions(action) {
         console.log(action)

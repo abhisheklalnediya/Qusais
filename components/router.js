@@ -16,8 +16,8 @@ import { AssIndex } from './assOverview';
 import { DoAssAnswer } from './assDoAnswer'
 
 const routes = [
-    {name: 'CheckLogin', index: 0},
-//    {name: 'Quests', index: 1},
+    //{name: 'CheckLogin', index: 0},
+   {name: 'Quests', index: 1},
 //    {name: 'AssOverview', index: 2},
 //    {name: 'DoAnswer', index:3},
 ];
