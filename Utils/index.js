@@ -1,6 +1,20 @@
+import moment from 'moment';
+
 var Utils = {}
 Utils.t = function (key){
 	return key;
+}
+Utils.config = {
+    pain_scale_min : 0,
+    pain_scale_max : 10,
+    eqvas_scale_min : 0,
+    eqvas_scale_max : 100
+}
+Utils.deFormatDate = function (dString) {
+    return moment(dString, Utils.dateFormat).format('YYYY-MM-DD');
+}
+Utils.formatDate = function (dString) {
+    return moment(dString, Utils.dateFormat).format('DD.MM.YYYY');
 }
 Utils.assStatus = function (asmt) {
     var a = {

@@ -6,8 +6,13 @@ import {
     Text,
     ScrollView,
     View,
+    Slider,
+    TouchableHighlight
+
 } from 'react-native';
 
+import Utils from '../Utils'
+import Session from "../stores/SessionStore";
 //import {HeaderLogo} from './loginLayout'
 
 const styles = StyleSheet.create({
@@ -19,75 +24,167 @@ const styles = StyleSheet.create({
         borderStyle: 'solid',
         marginBottom : 10
     },
-    questList:{
+    qTitle:{
+        textAlign : 'left',
+        color : '#FFF',
+        fontWeight : "bold",
+        fontSize : 18
+    },
+    qLatestVal:{
+        textAlign : 'right',
+        color : '#FFF',
+        fontWeight : "bold",
+        fontSize : 20
+    },
+    qContainer: {
+        //flex : 500,
+        //height : 50,
+        margin : 5,
+        padding : 5
     }
 });
 
-class DrugQuest extends Component{
-    styles = StyleSheet.create({
-        container: {
-            height : 100,
-            //flex : 200,
-            backgroundColor: '#F0F',
-            margin : 5
-        }
-    })
-    render(){
-        return(
-            <View style={this.styles.container}>
-                <Text>Did you took Drug1?</Text>
-            </View>
-        )
+class HealthQuest extends Component{
+    constructor(props) {
+        super(props);
+        this.type = this.props.type
+        this.state = {
+            type : this.type
+        };
+        this.state[this._getScaleType()] = 0
+        this._userChanged = this._userChanged.bind(this)
     }
-}
-class PainQuest extends Component{
-    styles = StyleSheet.create({
-        container: {
-            height : 100,
-            //flex : 200,
-            backgroundColor: '#0FF',
-            margin : 5
-        }
-    })
-    render(){
-        return(
-            <View style={this.styles.container}>
-                <Text>Pain</Text>
-            </View>
-        )
+    _getScaleType(){
+        return (this.props.type=='PAIN')? 'pain_scale':'health_scale'
     }
-}
-class EqvasQuest extends Component{
+    _getScaleColor(){
+        return (this.props.type == 'PAIN')? '#B8C90A':'#D93715'
+    }
+    _userChanged(){
+        var s = {}
+        s[this._getScaleType()] = Session.UserProfile[this._getScaleType()] || 0
+
+        this.setState(s)
+        console.log(s, this._getScaleType(),this.state)
+    }
+    componentDidMount(){
+        console.log(this.state)
+         try {
+            this._userChanged()
+        } catch(e) {
+        }
+        Session.addEL('USER_CHANGE', this._userChanged)
+    }
+    componentWillUnmount(){
+        Session.removeEL('USER_CHANGE', this._userChanged)
+    }
     styles = StyleSheet.create({
         container: {
-            //flex : 500,
-            height : 100,
-            backgroundColor: '#FF0',
-            margin : 5
-        }
+            backgroundColor:this._getScaleColor()
+        },
+
     })
+    changePain(){
+        return false
+    }
+    onPainPress(){
+        console.log(this.props)
+        this.props.navigator.push({
+            name : (this.state.type == 'PAIN')? "Pain" : "Eqvas",
+        })
+    }
     render(){
         return(
-            <View style={this.styles.container}>
-                <Text>Health Scale</Text>
-            </View>
+            <TouchableHighlight onPress={this.onPainPress.bind(this)} style={styles.button} underlayColor="white">
+                <View style={[this.styles.container, styles.qContainer]}>
+                    <Text style={styles.qTitle}>{(this.state.type=='PAIN')?'Pain':'Health'}</Text>
+                    <Text style={styles.qLatestVal}>{this.state[this._getScaleType()]} of {Utils.config.pain_scale_max}</Text>
+                </View>
+            </TouchableHighlight>
+            
         )
     }
 }
 
-class AssQuest extends Component{
+class DrugQuest extends Component{
+    constructor(props){
+        super(props);
+        this.state = {
+            favDrugs : Session.getFavDrugs()
+        }
+        this._updateAsskeys = this._updateAsskeys.bind(this)
+    }
+    _updateAsskeys(){
+        this.setState({
+            favDrugs : Session.getFavDrugs()
+        })
+    }
+    componentDidMount(){
+        Session.addEL('FAVDRUG_CHANGE',this._updateAsskeys)
+    }
+
     styles = StyleSheet.create({
         container: {
-            //flex : 500,
-            height : 100,
-            backgroundColor: '#FF0',
-            margin : 5
+            backgroundColor: '#91C5AB'
         }
     })
+    renderKeys(){
+        return(
+            this.state.favDrugs.map((q,i) => {
+                return (
+                    <View key={i} style={[this.styles.container, styles.qContainer]}>
+                        <Text  style={styles.qTitle}>Drug Intake</Text>
+                        <Text  style={styles.qLatestVal} >{q.quantity} {q.drug.form} {q.drug.name}</Text>
+                    </View>
+                )
+            })
+        )
+    }
     render(){
         return(
-            <View style={this.styles.container}>
-                <Text>Assessment Quest</Text>
+            <View>
+            {this.renderKeys()}
+            </View>
+        )
+    }
+}
+class AssQuest extends Component{
+    constructor(props){
+        super(props);
+        this.state = {
+            assKeys : Session.getAssKeys()
+        }
+        this._updateAsskeys = this._updateAsskeys.bind(this)
+    }
+    _updateAsskeys(){
+        this.setState({
+            assKeys : Session.getAssKeys()
+        })
+    }
+    componentDidMount(){
+        Session.addEL('ASSKEY_CHANGE',this._updateAsskeys)
+    }
+    styles = StyleSheet.create({
+        container: {
+            backgroundColor: '#b72c4d'
+        }
+    })
+    renderKeys(){
+        return(
+            this.state.assKeys.map((q,i) => {
+                return (
+                    <View key={i} style={[this.styles.container, styles.qContainer]}>
+                        <Text  style={styles.qTitle}>Assessment</Text>
+                        <Text  style={styles.qLatestVal} >{q.accesskey}</Text>
+                    </View>
+                )
+            })
+        )
+    }
+    render(){
+        return(
+            <View>
+            {this.renderKeys()}
             </View>
         )
     }
@@ -96,28 +193,20 @@ class AssQuest extends Component{
 export class Quests extends Component {
     styles = StyleSheet.create({
         healthRow: {
-            //flex : 1,
-            //flexDirection:'row',
-            //justifyContent: 'space-between',
-            //alignItems: 'flex-end',
-            //backgroundColor: '#F5FCFF',
         },
         painBox : {
-         //   flex : 20
         },
         eqvasBox : {
-         //   flex : 300
-
         }
     })
     render(){
         return(
             <View>
                 <ScrollView style={styles.questList}>
-                    <PainQuest style={this.styles.painBox} />
-                    <EqvasQuest style={this.styles.eqvasBox} />
-                    <DrugQuest />
-                    <AssQuest />
+                    <HealthQuest type={'PAIN'} navigator={this.props.navigator} style={this.styles.painBox} />
+                    <HealthQuest type={'EQVAS'} navigator={this.props.navigator} style={this.styles.painBox} />
+                    <DrugQuest navigator={this.props.navigator} />
+                    <AssQuest navigator={this.props.navigator} />
                 </ScrollView>
             </View>
         )

@@ -14,12 +14,11 @@ import { Quests } from './quests';
 //import { AssOverview } from './assOverview';
 import { AssIndex } from './assOverview';
 import { DoAssAnswer } from './assDoAnswer'
+import { Pain } from './pain'
+import { Eqvas } from './eqvas'
 
 const routes = [
-    //{name: 'CheckLogin', index: 0},
-   {name: 'Quests', index: 1},
-//    {name: 'AssOverview', index: 2},
-//    {name: 'DoAnswer', index:3},
+    {name: 'CheckLogin', index: 0},
 ];
 
 
@@ -53,6 +52,12 @@ export class DefRouter extends Component{
         else if(routeOptions.name=='Quests'){
             return <Quests navigator={navigator}/>
         }
+        else if(routeOptions.name=='Pain'){
+            return <Pain {...routeOptions} navigator={navigator}/>
+        }
+        else if(routeOptions.name=='Eqvas'){
+            return <Eqvas {...routeOptions} navigator={navigator}/>
+        }
         else if(routeOptions.name=='AssIndex'){
             return <AssIndex navigator={navigator}/>
         }
@@ -62,6 +67,7 @@ export class DefRouter extends Component{
         else if(routeOptions.name=='DoAnswerFS'){
             return <DoAssAnswer {...routeOptions} navigator={navigator}/>
         }
+
         // else {
         //     return <Quests navigator={navigator}/>
         // }

@@ -9,6 +9,7 @@
   "dependencies": {
     "events": "^1.1.1",
     "flux": "^3.1.2",
+    "moment": "^2.18.1",
     "native-base": "^2.0.12",
     "react": "15.4.2",
     "react-native": "0.40.0"

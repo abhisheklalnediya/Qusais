@@ -23,6 +23,8 @@ export class LoginPage extends Component {
             status : "Logging in...",
             showLginForm : false
         };
+        this._loginSuccess = this._loginSuccess.bind(this)
+        this._loginError = this._loginError.bind(this)
     }
     navigate(d){
         this.props.navigator.push({
@@ -39,19 +41,25 @@ export class LoginPage extends Component {
         })
         this.navigate('Quests')
     }
+    _loginSuccess(){
+        if(Session.getToken()){
+            this.loginSuccess()
+        }
+    }
+    _loginError(){
+        this.setState({
+            inProgress : false,
+            showLginForm : true,
+            status : "Login",
+        })
+    }
     componentWillMount(){
-        Session.once('LOGIN_SUCCESS', ()=>{
-            if(Session.getToken()){
-                this.loginSuccess()
-            }
-        })
-        Session.once('LOGIN_ERROR', ()=>{
-            this.setState({
-                inProgress : false,
-                showLginForm : true,
-                status : "Login",
-            })
-        })
+        Session.addEL('LOGIN_SUCCESS', this._loginSuccess)
+        Session.addEL('LOGIN_ERROR', this._loginError)
+    }
+    componentWillUnmount(){
+        Session.removeEL('LOGIN_SUCCESS', this._loginSuccess)
+        Session.removeEL('LOGIN_ERROR', this._loginError)
     }
     componentDidMount() {
         Session.checkLogin()
@@ -85,7 +93,6 @@ export class LoginPage extends Component {
                     style={[styles.centering, {height: 80}]}
                     size="large"
                     />
-                <Text>{this.state.status}</Text>
             </View>
         )
     }
@@ -106,7 +113,7 @@ export class HeaderLogo extends Component{
         //console.log(this.props)
     }
     componentWillMount(){
-        //console.log("registering")
+        console.log("registering")
         dispatcher.register((payload)=>{
             //console.log(this)
             if (payload.action_type = "NAVIGATION"){
@@ -116,7 +123,7 @@ export class HeaderLogo extends Component{
         });
     }
     onPressButton(){
-        //console.log('halle', this.navigator)
+        console.log('halle', this.navigator)
         if (this.navigator && this.navigator.getCurrentRoutes().length > 1) {
                 this.navigator.pop();
                 return true;
