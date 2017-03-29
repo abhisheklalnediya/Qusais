@@ -29,7 +29,7 @@ class HealthStore extends EventEmitter {
         (async () => {
             try {
                 const url = Session.API_ROOT + '/patient/painQuests/'
-                console.log(url)
+                //console.log(url)
                 let response = await fetch(url, {
                     method: 'GET',
                     headers: {
@@ -39,7 +39,7 @@ class HealthStore extends EventEmitter {
                 let responseJson = await response.json();
                 if(response.status == 200)
                 {
-                    console.log(responseJson)
+                    //console.log(responseJson)
                     this.painQuests = responseJson
                     if(this.painQuests.length){
 
@@ -58,7 +58,7 @@ class HealthStore extends EventEmitter {
         (async () => {
             try {
                 const url = Session.API_ROOT + '/patient/eqvasQuests/'
-                console.log(url)
+                //console.log(url)
                 let response = await fetch(url, {
                     method: 'GET',
                     headers: {
@@ -68,7 +68,7 @@ class HealthStore extends EventEmitter {
                 let responseJson = await response.json();
                 if(response.status == 200)
                 {
-                    console.log(responseJson)
+                    //console.log(responseJson)
                     this.eqvasQuests = responseJson
                     this.emit('EQVAS_STORE_UPDATED')
                 }
@@ -107,14 +107,15 @@ class HealthStore extends EventEmitter {
             }
 
         }
-        
+
     }
     _savePain(v){
-        
+
         (async () => {
             try {
                 const url = Session.API_ROOT + '/patient/painQuests/'
-                console.log(url)
+                //console.log(url)
+                console.log(Utils.deFormatDate(moment()), moment().date())
                 let response = await fetch(url, {
                     method: 'POST',
                     headers: {
@@ -147,11 +148,11 @@ class HealthStore extends EventEmitter {
         this._savePain(v)
     }
     _saveEqvas(v){
-        
+
         (async () => {
             try {
                 const url = Session.API_ROOT + '/patient/eqvasQuests/'
-                console.log(url)
+                //console.log(url)
                 let response = await fetch(url, {
                     method: 'POST',
                     headers: {
@@ -183,7 +184,7 @@ class HealthStore extends EventEmitter {
         this.emit('EQVAS_STORE_UPDATING')
         this._saveEqvas(v)
     }
-    
+
 }
 const healthStore = new HealthStore;
 //dispatcher.register(assessment.handleActions.bind(assessment));

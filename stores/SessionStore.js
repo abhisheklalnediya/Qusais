@@ -27,7 +27,7 @@ class Session extends EventEmitter {
             client_id : this.session.client_id,
             client_secret : this.session.client_secret
         }
-        
+
         if(creds.hasOwnProperty('rfToken')){
 
             data.refresh_token = creds.rfToken
@@ -46,7 +46,7 @@ class Session extends EventEmitter {
     }
     getUserUUID (){
         try{
-            return this.UserProfile.uuid    
+            return this.UserProfile.uuid
         }
         catch(e){
             return null
@@ -68,7 +68,7 @@ class Session extends EventEmitter {
                 });
 
                 let responseJson = await response.json();
-                console.log(responseJson)
+                //console.log(responseJson)
                 if(response.status == 200)
                 {
                     Object.assign(this.session, responseJson)
@@ -78,7 +78,7 @@ class Session extends EventEmitter {
                     })
                     try {
                         await AsyncStorage.setItem('QuasisSession:rfToken', responseJson.refresh_token);
-                        console.log('Local Save Success')
+                        //console.log('Local Save Success')
                     } catch (error) {
                         // Error saving data
                     }
@@ -86,7 +86,7 @@ class Session extends EventEmitter {
                 this.emit("LOGIN_SUCCESS")
                 this._fetchUserDetails()
             } catch(error) {
-                console.log("Errorrr", error)
+                //console.log("Errorrr", error)
                 this.emit("LOGIN_ERROR")
             }
         })()
@@ -103,7 +103,7 @@ class Session extends EventEmitter {
                 });
 
                 let responseJson = await response.json();
-                console.log(responseJson)
+                //console.log(responseJson)
                 if(response.status == 200)
                 {
                     Object.assign(this.session, responseJson)
@@ -122,9 +122,9 @@ class Session extends EventEmitter {
                 else{
                     this.emit("LOGIN_ERROR")
                 }
-                
+
             } catch(error) {
-                console.log("Errorrr", error)
+                //console.log("Errorrr", error)
                 this.emit("LOGIN_ERROR")
             }
         })()
@@ -133,7 +133,7 @@ class Session extends EventEmitter {
         (async () => {
             try {
                 const url = this.API_ROOT + '/get/user/details/'
-                console.log(url)
+                //console.log(url)
                 let response = await fetch(url, {
                     method: 'GET',
                     headers: {
@@ -146,7 +146,7 @@ class Session extends EventEmitter {
                 {
                     this.UserProfile = responseJson
                     this.UserProfile.eqvas_scale = this.UserProfile.health_scale
-                    console.log(responseJson)
+                    //console.log(responseJson)
                     this.emit("USER_CHANGE")
                     this._fetchAssessmentKeys()
                     this._fetchFavDrugs()
@@ -163,7 +163,7 @@ class Session extends EventEmitter {
         (async () => {
             try {
                 const url = this.API_ROOT + '/patient/' + this.getUserUUID() + '/accesskey/assessment/'
-                console.log(url)
+                //console.log(url)
                 let response = await fetch(url, {
                     method: 'GET',
                     headers: {
@@ -175,12 +175,12 @@ class Session extends EventEmitter {
                 if(response.status == 200)
                 {
                     this.assessmentKeys = responseJson
-                    console.log(responseJson)
+                    ////console.log(responseJson)
                     this.emit("ASSKEY_CHANGE")
                 }
                 return true
             } catch(error) {
-                error = await console.log('error', error)
+                //error = await console.log('error', error)
                 //this.emit("CHANGE")
                 return false
             }
@@ -190,7 +190,7 @@ class Session extends EventEmitter {
         (async () => {
             try {
                 const url = this.API_ROOT + '/patient/myFavouriteDrugs/'
-                console.log(url)
+                //console.log(url)
                 let response = await fetch(url, {
                     method: 'GET',
                     headers: {
@@ -202,7 +202,7 @@ class Session extends EventEmitter {
                 if(response.status == 200)
                 {
                     this.favDrugs = responseJson
-                    console.log(responseJson)
+                    //console.log(responseJson)
                     this.emit("FAVDRUG_CHANGE")
                 }
                 return true
@@ -223,7 +223,7 @@ class Session extends EventEmitter {
         (async () => {
             try {
                 let rfToken = await AsyncStorage.getItem('QuasisSession:rfToken');
-                console.log(rfToken)
+                //console.log(rfToken)
                 if (rfToken){
                    this._getNEwToken(rfToken)
                 }
@@ -231,18 +231,18 @@ class Session extends EventEmitter {
                     this.emit("LOGIN_ERROR")
                 }
             } catch (error) {
-                console.log(error)
+                //console.log(error)
                 this.emit("LOGIN_ERROR")
             }
         })()
     }
     setPain(v){
-        console.log(v)
+        //console.log(v)
         this.UserProfile.pain_scale = v
         this.emit('USER_CHANGE')
     }
     handleActions(action) {
-        console.log(action)
+        //console.log(action)
         switch(action.type) {
             case "FETCH_USER": {
                 this._fetchUserDetails();

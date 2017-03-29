@@ -22,7 +22,7 @@ export class DoAssAnswer extends Component {
         };
     }
     doOptionAnswer(p){
-        console.log(p)
+        //console.log(p)
         this.setState({
             documented : true,
             valude : 1

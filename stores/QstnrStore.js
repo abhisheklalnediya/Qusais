@@ -16,7 +16,7 @@ class Assessment extends EventEmitter {
         (async () => {
             try {
                 const url = Session.API_ROOT + '/patient/assessments/' + id + '/answers/'
-                console.log(url)
+                //console.log(url)
                 let response = await fetch(url, {
                     method: 'GET',
                     headers: {
@@ -26,7 +26,7 @@ class Assessment extends EventEmitter {
 
                 let responseJson = await response.json();
                 this.assessmentAns = responseJson
-                console.log(responseJson)
+                //console.log(responseJson)
                 this.populateQuestions()
                 this.emit("ASSESSMENT_READY_TO_ANSWER")
                 return true
@@ -41,7 +41,7 @@ class Assessment extends EventEmitter {
         (async () => {
             try {
                 const url = Session.API_ROOT + '/patient/assessments/' + id + '/'
-                console.log(url)
+                //console.log(url)
                 let response = await fetch(url, {
                     method: 'GET',
                     headers: {
@@ -65,7 +65,7 @@ class Assessment extends EventEmitter {
         (async () => {
             try {
                 this.assKey = accessKey
-                console.log(Session.API_ROOT + '/patient/get/cankado/assessment/access/' + accessKey + '/')
+                // console.log(Session.API_ROOT + '/patient/get/cankado/assessment/access/' + accessKey + '/')
                 let response = await fetch(Session.API_ROOT + '/patient/get/cankado/assessment/access/' + accessKey + '/', {
                     method: 'GET',
                     headers: {
@@ -97,7 +97,7 @@ class Assessment extends EventEmitter {
                     quest.order_qstnr = i
                     quest.section = sec
                     quest.questionnaire = qstnr
-                    quest.answer = null
+                    quest.answer = (quest.ansType == 'm') ? [] : null
                     answer = this.getAnswerOfQuestion(quest.uuid)
                     if (answer){
                         if(quest.ansType == 'o'){
@@ -115,18 +115,18 @@ class Assessment extends EventEmitter {
             })
         })
         this.questions = questions
-        console.log(this.questions)
+        //console.log(this.questions)
     }
     getAssment() {
         return this.assessment;
     }
     getAllQuestions() {
-        console.log(this.questions)
+        //console.log(this.questions)
         return this.questions
     }
     getQuestionByUUID(uuid) {
         var q = this.questions.find(x =>x.uuid===uuid)
-        return q 
+        return q
     }
     getNextQuestion(uuid){
         var qi = this.questions.findIndex(x =>x.uuid===uuid)
@@ -134,10 +134,10 @@ class Assessment extends EventEmitter {
         return this.questions[qi+1]
     }
     doAnswer(answer){
-        console.log(answer)
+        //console.log(answer)
         var ansIndex = this.assessmentAns.findIndex((x)=>{ return x.question == answer.question })
         var question = this.getQuestionByUUID(answer.question)
-        console.log(ansIndex, question)
+        //console.log(ansIndex, question)
         var answerTemp = {
             assessment : this.assessment.uuid,
             question : answer.question,
@@ -167,7 +167,7 @@ class Assessment extends EventEmitter {
         } else if (question.ansType == 'f') {
         }
         this.assessmentAns.splice(ansIndex, (ansIndex == -1) ? 0 : (ansIndex + 1), answerTemp)
-        
+
         this.populateQuestions()
         this.emit("ASSESSMENT_ANSWER_CHANGE_" + question.uuid);
     }
@@ -175,12 +175,12 @@ class Assessment extends EventEmitter {
         (async () => {
             try {
                 const url = Session.API_ROOT + '/patient/assessments/' + this.assessment.uuid + '/answers/'
-                console.log(url)
+                //console.log(url)
                 var patchData = [{
                     assessment : this.assessment.uuid,
-                    ...data
+                    ...answer
                 }]
-                console.log(patchData)
+                //console.log(patchData)
                 let response = await fetch(url, {
                     method: 'PATCH',
                     headers: {
@@ -189,10 +189,10 @@ class Assessment extends EventEmitter {
                     body : JSON.stringify(patchData)
                 });
                 let responseJson = await response.json();
-                patchData.forEach((pd)=>{
-                    this.updateAnswer(pd)
-                    this.emit("ASSESSMENT_ANSWER_CHANGE_" + pd.question);
-                })
+                // patchData.forEach((pd)=>{
+                //      this.updateAnswer(pd)
+                //      this.emit("ASSESSMENT_ANSWER_CHANGE_" + pd.question);
+                // })
                 return true
             } catch(error) {
                 error = await console.log('error', error)
@@ -202,7 +202,7 @@ class Assessment extends EventEmitter {
         })()
     }
     handleActions(action) {
-        console.log(action)
+        //console.log(action)
         switch(action.type) {
             case "DOCUMENT_QUESTION": {
                 this.doAnswer(action);

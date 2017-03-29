@@ -59,13 +59,13 @@ export class DefRouter extends Component{
             return <Eqvas {...routeOptions} navigator={navigator}/>
         }
         else if(routeOptions.name=='AssIndex'){
-            return <AssIndex navigator={navigator}/>
+            return <AssIndex {...routeOptions} navigator={navigator}/>
         }
         else if(routeOptions.name=='FetchAssOverview'){
             return <FetchAssOverview navigator={navigator}/>
         }
         else if(routeOptions.name=='DoAnswerFS'){
-            return <DoAssAnswer {...routeOptions} navigator={navigator}/>
+            return <DoAssAnswer {...routeOptions}  navigator={navigator}/>
         }
 
         // else {

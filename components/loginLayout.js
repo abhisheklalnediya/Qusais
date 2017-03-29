@@ -37,7 +37,7 @@ export class LoginPage extends Component {
             status : "Welcome",
             username : "",
             password : ""
-            
+
         })
         this.navigate('Quests')
     }
@@ -65,7 +65,7 @@ export class LoginPage extends Component {
         Session.checkLogin()
     }
     login(){
-        console.log(this.state)
+        //console.log(this.state)
         Session.login({...this.state})
     }
     renderLoginForm(){
@@ -79,8 +79,8 @@ export class LoginPage extends Component {
                     <Icon  name='key' />
                     <Input secureTextEntry={true} onChangeText={(text) => this.setState({password:text})} placeholder="password" />
                 </Item>
-                <Button block>
-                    <Text onPress={this.login.bind(this)} >Login</Text>
+                <Button block onPress={this.login.bind(this)}>
+                    <Text>Login</Text>
                 </Button>
             </Form>
         )
@@ -103,7 +103,7 @@ export class LoginPage extends Component {
         else{
             return (this.renderProgress())
         }
-            
+
     }
 }
 
@@ -123,7 +123,7 @@ export class HeaderLogo extends Component{
         });
     }
     onPressButton(){
-        console.log('halle', this.navigator)
+        //console.log('halle', this.navigator)
         if (this.navigator && this.navigator.getCurrentRoutes().length > 1) {
                 this.navigator.pop();
                 return true;

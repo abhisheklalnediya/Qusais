@@ -65,10 +65,10 @@ class HealthQuest extends Component{
         s[this._getScaleType()] = Session.UserProfile[this._getScaleType()] || 0
 
         this.setState(s)
-        console.log(s, this._getScaleType(),this.state)
+        //console.log(s, this._getScaleType(),this.state)
     }
     componentDidMount(){
-        console.log(this.state)
+        //console.log(this.state)
          try {
             this._userChanged()
         } catch(e) {
@@ -88,7 +88,7 @@ class HealthQuest extends Component{
         return false
     }
     onPainPress(){
-        console.log(this.props)
+        //console.log(this.props)
         this.props.navigator.push({
             name : (this.state.type == 'PAIN')? "Pain" : "Eqvas",
         })
@@ -101,7 +101,7 @@ class HealthQuest extends Component{
                     <Text style={styles.qLatestVal}>{this.state[this._getScaleType()]} of {Utils.config.pain_scale_max}</Text>
                 </View>
             </TouchableHighlight>
-            
+
         )
     }
 }
@@ -164,20 +164,35 @@ class AssQuest extends Component{
     componentDidMount(){
         Session.addEL('ASSKEY_CHANGE',this._updateAsskeys)
     }
+    componentWillUnmount(){
+        Session.removeEL('ASSKEY_CHANGE', this._updateAsskeys)
+    }
     styles = StyleSheet.create({
         container: {
             backgroundColor: '#b72c4d'
         }
     })
+
+    onAssessmentPress(key){
+        //console.log(this.props)
+        this.props.navigator.push({
+            name : "AssIndex",
+            accesskey : key
+        })
+    }
     renderKeys(){
         return(
             this.state.assKeys.map((q,i) => {
-                return (
-                    <View key={i} style={[this.styles.container, styles.qContainer]}>
-                        <Text  style={styles.qTitle}>Assessment</Text>
-                        <Text  style={styles.qLatestVal} >{q.accesskey}</Text>
-                    </View>
-                )
+                if( q.status == 'g'){
+                    return (
+                        <TouchableHighlight key={i} onPress={() => this.onAssessmentPress(q.accesskey)} style={styles.button} underlayColor="white">
+                            <View style={[this.styles.container, styles.qContainer]}>
+                                <Text  style={styles.qTitle}>Assessment</Text>
+                                <Text  style={styles.qLatestVal}>{q.accesskey.toUpperCase()}</Text>
+                            </View>
+                        </TouchableHighlight>
+                    )
+                }
             })
         )
     }

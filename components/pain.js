@@ -17,7 +17,7 @@ import dispatcher from "../dispatcher/dispatcher"
 
 const styles = StyleSheet.create({
     questList:{
-        
+
     },
     qBox: {
         //width: 100,
@@ -95,7 +95,7 @@ class PainForm extends Component{
         Session.addEL('USER_CHANGE',this._updatePain)
     }
     componentWillUnmount(){
-        Session.removeEL('USER_CHANGE',this._updatePain)   
+        Session.removeEL('USER_CHANGE',this._updatePain)
     }
     styles = StyleSheet.create({
         container: {
@@ -144,7 +144,7 @@ class PainQuest extends Component{
         this.state = {
             ...this.props
         }
-        
+
     }
     componentWillReceiveProps(props){
         this.setState({

@@ -11,11 +11,11 @@ import {
     View,
 } from 'react-native';
 
-import { 
-    Container, 
-    Content, 
-    Body, 
-    ListItem, 
+import {
+    Container,
+    Content,
+    Body,
+    ListItem,
     CheckBox,
     Right,
     Radio,
@@ -55,7 +55,19 @@ const styles = StyleSheet.create({
         padding : 5
     },
     questList:{
-    }
+    },
+    qContainer: {
+        //flex : 500,
+        //height : 50,
+        margin : 5,
+        padding : 5
+    },
+    qsnr:{
+        textAlign : 'left',
+        color : '#FFF',
+        fontWeight : "bold",
+        fontSize : 20
+    },
 });
 
 const routes = [
@@ -73,7 +85,7 @@ class AssAnswerFs extends Component {
         };
     }
     doOptionAnswer(p){
-        console.log(p)
+        //console.log(p)
         this.setState({
             documented : true,
             valude : 1
@@ -97,7 +109,7 @@ class AssAnswerFs extends Component {
                 )
             }))
         }
-        
+
     }
     render(){
         if(this.state.question){
@@ -140,14 +152,14 @@ class AssQuestion extends Component{
 
     }
     radioClick(answer){
-        
+
         Assessment.on('ASSESSMENT_ANSWER_CHANGE_' + this.state.question.uuid, ()=>{
-            console.log('Setting State')
-            console.log(this.state)
+            //console.log('Setting State')
+            //console.log(this.state)
             this.setState({
                 question : Assessment.getQuestionByUUID(this.props.question.uuid)
             })
-                      console.log(this.state)
+            //console.log(this.state)
         })
         dispatcher.dispatch({
             type : "DOCUMENT_QUESTION",
@@ -172,20 +184,20 @@ class AssQuestion extends Component{
         else if(this.state.question.ansType == 'm'){
            return (this.state.question.options.map((o,i) => {
                 return(
-                    <ListItem onPress={this.radioClick.bind(this, o.uuid)} key={i} selected={ this.state.question.answer.findIndex((x)=>{ return x == o.uuid}) > -1 }>
+                    <ListItem onPress={this.radioClick.bind(this, o.uuid)} key={i} checked={ this.state.question.answer.findIndex((x)=>{ return x == o.uuid}) > -1 }>
                             <Text>{o.title}</Text>
                             <Right>
-                                <Radio selected={ this.state.question.answer.findIndex((x) => { return x == o.uuid}) > -1  } />
+                                <CheckBox checked={ this.state.question.answer.findIndex((x) => { return x == o.uuid}) > -1  } />
                             </Right>
                     </ListItem>
                 )
             }))
         }
         else if(this.state.question.ansType == 't'){
-            
+
         }
         else if(this.state.question.ansType == 'f'){
-            
+
         }
     }
     goFullScreen(){
@@ -270,6 +282,9 @@ class AssOverview extends Component {
         },
         qInfoRowItem : {
             flex : 1
+        },
+        container: {
+            backgroundColor:'#b72c4d'
         }
     })
     renderAssQstnr(){
@@ -278,7 +293,7 @@ class AssOverview extends Component {
             return(
                 assessment.questionnaires.map((q,i) => {
                     return (
-                        <Text key={i}>{q.title}</Text>
+                        <Text style={styles.qsnr} key={i}>{q.title}</Text>
                     )
                 })
             )
@@ -286,17 +301,21 @@ class AssOverview extends Component {
         return (
             <View>
                 <View style={this.styles.qInfoRow}>
-                    <Text style={this.styles.qInfoRowItem}>{assessment.accessKey.accesskey}</Text>
+                    <Text style={this.styles.qInfoRowItem}>{assessment.accessKey.accesskey.toUpperCase()}</Text>
                     <Text style={this.styles.qInfoRowItem}>{Utils.assStatus(assessment).status}</Text>
                 </View>
+                <TouchableHighlight style={styles.button} underlayColor="white">
+                    <View style={[this.styles.container, styles.qContainer]}>
+                        {showQuestionnares()}
+                    </View>
+                </TouchableHighlight>
                 <TouchableHighlight
                     onPress={this.onPressAnswer.bind(this)}
-                    style={styles.qBtn}
+                    style={[styles.qBtn, styles.qContainer]}
                     accessibilityLabel="{o.title}"
                     >
                     <Text>Answer</Text>
                 </TouchableHighlight>
-                {showQuestionnares()}
             </View>
         )
     }
@@ -313,16 +332,14 @@ class AssOverview extends Component {
 export class AssIndex extends Component {
     constructor(props) {
         super(props);
-        console.log(this.props)
         this.state = {
             status : "Fetching Assessment Details.",
-            inProgress : true
+            inProgress : true,
+            accesskey : this.props.accesskey
         };
     }
-    componentWillMount (){
-    }
     componentDidMount (){
-        Assessment.fetch('679c3')
+        Assessment.fetch(this.state.accesskey)
         Assessment.on('ASSESSMENT_READY_TO_ANSWER', ()=>{
             this.setState({
                 inProgress : false,
@@ -330,6 +347,8 @@ export class AssIndex extends Component {
             })
             this.navigate('AssOverview')
         })
+    }
+    componentWillUnmount(){
     }
     navigate(d){
         this.assNavigator.push({
@@ -355,7 +374,7 @@ export class AssIndex extends Component {
                                 />
                             <Text>{this.state.status}</Text>
                         </ScrollView>
-                    </View> 
+                    </View>
                 )
             case "AssOverview":
                 return (
